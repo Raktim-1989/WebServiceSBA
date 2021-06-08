@@ -1,0 +1,111 @@
+StepDefination.java
+import static org.testng.Assert.assertEquals;
+
+import java.util.List;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxOptions;
+import org.openqa.selenium.firefox.FirefoxProfile;
+import org.openqa.selenium.firefox.FirefoxBinary;
+import org.openqa.selenium.support.ui.ExpectedCondition;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import cucumber.api.java.After;
+import cucumber.api.java.Before;
+import cucumber.api.java.en.Given;
+import cucumber.api.java.en.Then;
+import cucumber.api.java.en.When;
+import cucumber.api.DataTable;
+
+public class StepDefinition {
+	WebDriver driver;
+	public static String discountText;
+	
+	@Before
+	public void setUp(){
+		System.setProperty("webdriver.gecko.driver", "/usr/bin/geckodriver");
+    	FirefoxBinary firefoxBinary = new FirefoxBinary();
+    	firefoxBinary.addCommandLineOptions("--headless");
+        FirefoxProfile profile=new FirefoxProfile();
+    	FirefoxOptions firefoxOptions = new FirefoxOptions();
+    	firefoxOptions.setBinary(firefoxBinary);
+    	firefoxOptions.setProfile(profile);
+        driver=new FirefoxDriver(firefoxOptions);
+		loadURL();		
+	}
+	@Given("^Launch the application$")
+	public void loadURL() {
+		String baseUrl = "https://webapps.tekstac.com/AddressBook/";
+		driver.get(baseUrl);
+		WebElement heading = driver.findElement(By.xpath("/html/body/center/h2"));
+		
+		ExpectedCondition<Boolean> expectation = new
+                ExpectedCondition<Boolean>() {
+                    public Boolean apply(WebDriver driver) {
+                        return (heading.getText().equals("Address Book"));
+                    }
+                };
+        
+		WebDriverWait wait = new WebDriverWait(driver, 30);
+        wait.until(expectation);
+	}
+
+	@When("^address details are added nickname as \"([^\"]*)\", contactname as \"([^\"]*)\", company as \"([^\"]*)\", city as \"([^\"]*)\", country as \"([^\"]*)\", type as \"([^\"]*)\"$")
+	public void testAddressBook(String arg1, String arg2, String arg3, String arg4, String arg5, String arg6) {
+		//Please fill the required code
+		driver.findElement(By.id("nickname")).sendKeys(arg1);
+		driver.findElement(By.id("contact")).sendKeys(arg2);
+		driver.findElement(By.id("company")).sendKeys(arg3);
+		driver.findElement(By.id("city")).sendKeys(arg4);
+		driver.findElement(By.id("country")).sendKeys(arg5);
+		driver.findElement(By.id("type")).sendKeys(arg6);
+		driver.findElement(By.id("add")).click();
+	}
+
+	@When("^addresses are deleted$")
+	public void deleteAddressBook(DataTable addressValues) {
+		//Please fill the required code
+		driver.findElement(By.id("radio0")).click();
+		driver.findElement(By.id("delete")).click();
+	}
+	
+	@Then("^all addresses should be displayed to the right nickname as \"([^\"]*)\", contactname as \"([^\"]*)\", company as \"([^\"]*)\", city as \"([^\"]*)\", country as \"([^\"]*)\", type as \"([^\"]*)\"$")
+	public void validateResult(DataTable expectedAddresses) {
+		//Please fill the required code
+		String nickname =driver.findElement(By.xpath("//div[@id='result']/table/tbody/tr[2]/td[1]")).getText();
+		String contactname =driver.findElement(By.xpath("//div[@id='result']/table/tbody/tr[2]/td[2]")).getText();
+		String company = driver.findElement(By.xpath("//div[@id='result']/table/tbody/tr[2]/td[3]")).getText();
+		String city = driver.findElement(By.xpath("//div[@id='result']/table/tbody/tr[2]/td[4]")).getText();
+		String country = driver.findElement(By.xpath("//div[@id='result']/table/tbody/tr[2]/td[5]")).getText();
+		String type = driver.findElement(By.xpath("//div[@id='result']/table/tbody/tr[2]/td[6]")).getText();
+	
+	}
+
+	@After
+	public void tearDown(){
+		driver.close();
+		driver.quit();
+	}
+
+}
+
+
+Feature
+#Please Do not change Feature Templet
+Feature: Address Book
+   
+  #Please Do not change Scenario Templet
+  Scenario Outline: Add addresses
+    #Please Do not change Given Templet
+    Given Launch the application 
+    When address details are added "<nickname>","<contactname>","<company>","<city>","<country>","<type>"
+    Then all addresses should be displayed to the right "<nickname>","<contactname>","<company>","<city>","<country>","<type>"
+    When addresses are deleted
+    Examples:
+    |nickname|contactname|company|city|country|type|
+    |TestN|testc|testcompant|testcity|testcountry|testtype|
+#Please Replace this  Comment with required as per the problem statement.
